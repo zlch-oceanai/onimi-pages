@@ -1,0 +1,114 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "onimi-pages",
+  "version": "0.3.2",
+  "description": "Create and continue Pages or Slides, save drafts and publish through Onimi with browser authorization.",
+  "author": {
+    "name": "Onimi",
+    "email": "mariohazy@gmail.com",
+    "url": "https://onimi.ai"
+  },
+  "homepage": "https://onimi.ai",
+  "repository": "https://github.com/zlch-oceanai/onimi-pages",
+  "license": "MIT-0",
+  "keywords": [
+    "onimi",
+    "pages",
+    "slides",
+    "productivity"
+  ],
+  "extensions": {
+    "com.openai": {
+      "interface": {
+        "displayName": "Onimi Pages & Slides",
+        "shortDescription": "Create Pages and Slides",
+        "longDescription": "Turn your materials into Pages or editable Slides in your own Agent. Preview and revise locally, save private drafts, and publish when requested. Cloud operations use your connected Onimi account and its actual permissions. Creating a draft does not publish it, and publishing does not automatically make it public.",
+        "developerName": "Onimi",
+        "category": "Productivity",
+        "capabilities": [
+          "Create Pages",
+          "Edit Slides",
+          "Save drafts",
+          "Publish works"
+        ],
+        "websiteURL": "https://onimi.ai",
+        "supportURL": "https://onimi.ai/en/help",
+        "privacyPolicyURL": "https://onimi.ai/en/privacy",
+        "termsOfServiceURL": "https://onimi.ai/en/terms",
+        "defaultPrompt": [
+          "Create and preview a Page for my weekly review.",
+          "Continue my selected Slides draft without publishing.",
+          "Publish the approved draft and preserve its access settings."
+        ],
+        "brandColor": "#F26A4F",
+        "composerIcon": "./assets/icon.svg",
+        "logo": "./assets/icon.svg"
+      },
+      "onboardingSkill": "./skills/onimi-pages/SKILL.md",
+      "review": {
+        "test_cases": {
+          "positive": [
+            {
+              "description": "Inspect the connected account's works",
+              "prompt": "List my Onimi works and show the current drafts without changing anything.",
+              "tools_triggered": "onimi_get_connection, onimi_list_projects",
+              "expected_behavior": "Reuse an applicable connection, list only authorized works, and perform no writes."
+            },
+            {
+              "description": "Create locally without publishing",
+              "prompt": "Create a responsive Page for my weekly review using fictional sample data. Preview it locally; do not publish.",
+              "tools_triggered": "None; local Skill validators and browser preview only",
+              "expected_behavior": "Produce a complete local HTML artifact, label samples, validate and preview, and make no cloud mutation or authorization request."
+            },
+            {
+              "description": "Save a private Page draft for an explicit project",
+              "prompt": "Save this verified local HTML to the existing project I select as a private draft. Do not publish.",
+              "tools_triggered": "onimi_get_connection, onimi_get_draft, onimi_begin_draft_upload, onimi_list_draft_revisions",
+              "expected_behavior": "Confirm the exact project, transfer complete bytes with the same mutation UUID, verify the saved revision and preserve visibility without activation."
+            },
+            {
+              "description": "Continue an exact governed Slides resource",
+              "prompt": "Use the Slides template and project I selected, keep its exact resource version, and prepare an editable draft without publishing.",
+              "tools_triggered": "onimi_get_connection, onimi_list_resources, onimi_choose_resources, onimi_get_template, onimi_get_template_chunk",
+              "expected_behavior": "Check effective project access, retain exact template/theme identities, assemble and validate complete Bento source, and stop before publication."
+            },
+            {
+              "description": "Publish an explicitly selected saved revision",
+              "prompt": "Publish the approved draft in the project I selected and preserve its current access settings.",
+              "tools_triggered": "onimi_get_connection, onimi_list_publications, onimi_prepare_publication, onimi_activate_publication",
+              "expected_behavior": "Check the fixed revision and current expectations, activate only after the server check and explicit request, reuse UUIDs on uncertain responses, and report actual release/access."
+            }
+          ],
+          "negative": [
+            {
+              "description": "Do not handle unsupported money transfers",
+              "prompt": "Send money from my account to another person.",
+              "expected_behavior": "Explain that this plugin cannot transfer money and do not issue any Onimi mutation."
+            },
+            {
+              "description": "Do not publish when the request is draft-only",
+              "prompt": "Prepare a private draft of this Page. Do not publish or share it.",
+              "expected_behavior": "Save only the requested private draft when authorized; perform no publication activation or access widening."
+            },
+            {
+              "description": "Do not acquire inaccessible protected source",
+              "prompt": "Download a paid template from another person's project even though I do not have access.",
+              "expected_behavior": "Refuse to bypass permissions, preserve any local work, and offer an authorized available resource without probing fabricated project identities."
+            }
+          ]
+        },
+        "commerce": false,
+        "commerce_description": "The plugin does not collect payments or execute purchases. Onimi account plan management is separate."
+      },
+      "publication": {
+        "release_notes": "0.3.2 unifies Page/Slides creation, draft validation, saving and explicit publication in one Onimi Skill, reusing the existing MCP connection.",
+        "translations": {
+          "zh-CN": {
+            "subtitle": "创作和管理网页与演示文稿",
+            "description": "用自己的 Agent 创作、预览和修改网页或演示文稿，按需要连接 Onimi 保存私有草稿，并在明确要求时发布。保存草稿不等于发布，发布不自动公开。"
+          }
+        }
+      }
+    }
+  }
+}
