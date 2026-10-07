@@ -28,8 +28,10 @@ fact about the user's situation; ask before treating it as confirmed.
 Before cloud creation or template acquisition, establish whether the user is updating an existing
 project or creating a new one. Reuse any explicit target, project name or access choice already made in
 the conversation. A request to create content or publish it does not by itself authorize a new cloud
-project. Locate the existing work by its full `projectName` first, following
-[publish.md](publish.md#connect-and-select-the-target). Use `projectId` when no name is available;
+project. Locate the existing work by its full name, following the discovered-schema and legacy
+read-only resolution rules in [publish.md](publish.md#connect-and-select-the-target). Pass
+`projectName` only when that tool advertises it; use the resolved internal ID on older services.
+Use `projectId` when no name is available;
 an explicit work link can pin the same-name target but must not override a name conflict. Resolve
 through an appropriate read before the first mutation, then keep the resolved ID for writes and
 retries. Never choose a fuzzy or ambiguous name, or create a replacement after failed lookup. If
@@ -125,8 +127,10 @@ When connected to Onimi, use the five-layer catalog as the current authority:
    Never send the user's prompt, draft or materials. Call `onimi_choose_resources` with exact explicit
    choices after local matching; `taskTags` may contain only tags returned by the public catalog. Reuse
    exact existing template/theme identities when revising an artifact unless the user changes them.
-   To consider a premium template, identify the already chosen owned work by `projectName` first
-   (or `projectId` when no name is available) so the service can check effective access; without a
+   To consider a premium template, identify the already chosen owned work by its full name using
+   the selector advertised in the tool schema and the read-only compatibility rules in
+   [publish.md](publish.md#connect-and-select-the-target); pass its resolved ID on older services
+   (or when no name is available) so the service can check effective access; without a
    project, only basic templates are eligible. If an exact explicit or
    inherited template/theme is unavailable, explain that choice and ask before changing it.
 3. Save the public list response in a task cache outside this installed Skill and verify every selected
@@ -157,8 +161,9 @@ node /absolute/path/to/onimi-pages/scripts/scenario.mjs travel-handbook zh-CN
 Use `en` for English and identify this as an offline bundled scenario fallback. The offline bundle does
 not claim current example, pattern, template or theme authority.
 
-For Slides, first resolve the selected existing work by its full `projectName`, or `projectId` when no
-name is available, following [publish.md](publish.md#connect-and-select-the-target). Use
+For Slides, first resolve the selected existing work by its full name, or `projectId` when no
+name is available, following the discovered-schema and legacy read-only resolution rules in
+[publish.md](publish.md#connect-and-select-the-target). Never send an unadvertised `projectName`. Use
 `onimi_list_templates` with locale and that target only to confirm effective account availability after
 public catalog selection. Bind the returned `projectId` and acquire exactly once with
 `onimi_get_template`, a fresh UUID and

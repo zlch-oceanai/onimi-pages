@@ -67,8 +67,10 @@ factually ready to present.
 ## Discover and acquire the exact template
 
 1. Select the existing Onimi work first. Pass the user's full `projectName` to
-   `onimi_list_templates` with the locale; use `projectId` when no name is available. Follow
-   [publish.md](publish.md#connect-and-select-the-target) for exact name matching, account checks,
+   `onimi_list_templates` only when its discovered input schema advertises that field. On older
+   services, resolve the full name through the read-only project list and pass the verified internal
+   ID; use `projectId` when no name is available. Follow
+   [publish.md](publish.md#connect-and-select-the-target) for complete-list resolution, exact name matching, account checks,
    duplicate candidates and name/link conflicts. If no work was identified, ask once for its name or
    link. If lookup is missing or ambiguous, stop acquisition and preserve the selected template/theme
    and local editable outline. Do not guess, probe with a placeholder or create a project. Public

@@ -27,9 +27,10 @@ Read only the guidance needed for the user's request:
   [installation.zh-CN.md](references/installation.zh-CN.md) in Chinese.
 - Migrate an old Creator/Publish installation: read [migration.md](references/migration.md).
 
-Locate an existing work by the user's full project name first (`projectName`); use
-`projectId` only when no name was given or after the target is resolved. Follow the
-exact-name, duplicate-name and missing-name recovery rules in
+Locate an existing work by the user's full project name first. Pass `projectName`
+only when the discovered tool schema advertises it; older services resolve the name
+through the authorized project list and use its verified internal ID. Follow the
+schema-aware, exact-name, duplicate-name and missing-name recovery rules in
 [publish.md](references/publish.md#connect-and-select-the-target). Keep the resolved
 ID for later writes, chunks and retries so a rename cannot select another work.
 
