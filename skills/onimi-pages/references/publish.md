@@ -114,16 +114,44 @@ one existing project, or create one new project. A generic request to publish do
 new project. Reuse an explicit earlier choice of target, project name or access; do not ask the user to
 confirm the same choice again.
 
-Call `onimi_list_projects` first. Resolve an explicit project UUID exactly; resolve a dashboard/editor
-URL by its embedded UUID; resolve an audience URL by its exact project slug; or resolve an explicit
-project name only when exactly one returned project has that name. Never use a partial/fuzzy name match
-for a write. If the reference has no match or multiple name matches, show the short candidates and ask
-which one. If the user has not chosen update versus create, ask once, combining only the missing facts:
-for an update, the existing project name/ID/URL; for a new project, its name and intended access
-(`public` means listed in Explore and open to anyone, `unlisted` means open to anyone with the link, or
+Use the project tools' `projectName` input first when the user supplied a work name.
+The service trims leading/trailing whitespace and matches the full, case-sensitive name only among
+non-deleted works owned by the current author in the connected account. Name lookup requires
+`project:read` in addition to the tool's own scopes. Never use a partial/fuzzy name match for a write.
+When no name is available, the existing `projectId` input remains valid and keeps its previous scope
+requirements. The older `project` ID/slug input also remains supported where advertised. Resolve a
+dashboard/editor URL by its embedded UUID and an audience URL by its exact project slug; do not
+invent a name from a slug or filename.
+
+If the user supplied both a name and a work link or ID, send `projectName` plus the link's exact
+`projectId` to verify the same work. The ID must be one of that name's owned matches; it may pin a
+specific same-name work but never overrides a conflicting or missing name. A
+`PROJECT_TARGET_MISMATCH` stops the operation: ask the user to check the name and link, including
+whether the work was renamed. Do not discard the name and retry the ID as a hidden fallback.
+
+A name-not-found result is authoritative even when an ID was also supplied: ask the user to check
+the name or connected account, or use `onimi_list_projects` to help them find the work. Do not
+silently create a replacement. For duplicate names, use the returned candidate name, slug, artifact
+kind, update time and dashboard link to show a short recognizable choice. Never pick the first
+candidate. Reuse an explicit project link if it identifies one candidate; otherwise ask which work
+the user intends. After they choose, omit the name and use the selected ID. User-facing questions
+should ask for the work name or link, rather than requiring a UUID.
+
+Before the first mutation, resolve through an appropriate read: `onimi_list_projects` for project
+metadata, `onimi_get_draft` when authorized to edit private source, or `onimi_list_templates` for
+chosen-template access. Do not use a private draft read as a connection test. Targeted project reads
+return the resolved `projectId`; project listings expose each item's stable `id`. Once the target is
+established, bind that ID to the task and use `projectId` alone for writes, exact revisions, chunk
+requests and uncertain retries. Preserve the original mutation UUID and request body. Do not repeat name lookup during a
+mutation retry: a rename or a newly created namesake must not retarget the original operation.
+Internal upload helpers, journal references and server receipts still use stable IDs.
+
+If the user has not chosen update versus create, ask once, combining only the missing facts: for an
+update, the existing work name or link; for a new project, its name and intended access (`public`
+means listed in Explore and open to anyone, `unlisted` means open to anyone with the link, or
 `private` means owner/grant access). Do not ask for new-project name or visibility on an update. An
-explicit controlled-sharing choice establishes `private`; explain that consequence without asking a
-redundant visibility question.
+explicit controlled-sharing choice establishes `private`; explain that consequence without asking
+a redundant visibility question.
 
 Call `onimi_create_project` only after the user explicitly chooses a new project and its name and access
 are known. A title, filename or page heading is not a confirmed project name unless the user made it the

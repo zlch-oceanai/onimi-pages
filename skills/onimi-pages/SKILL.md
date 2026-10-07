@@ -27,6 +27,12 @@ Read only the guidance needed for the user's request:
   [installation.zh-CN.md](references/installation.zh-CN.md) in Chinese.
 - Migrate an old Creator/Publish installation: read [migration.md](references/migration.md).
 
+Locate an existing work by the user's full project name first (`projectName`); use
+`projectId` only when no name was given or after the target is resolved. Follow the
+exact-name, duplicate-name and missing-name recovery rules in
+[publish.md](references/publish.md#connect-and-select-the-target). Keep the resolved
+ID for later writes, chunks and retries so a rename cannot select another work.
+
 Keep the user's existing project, draft/release history, visibility and grants when
 editing. A generic publish request does not select a new project. Creation and draft
 saving do not authorize publication. An explicit request to publish remains valid

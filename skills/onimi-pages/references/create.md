@@ -28,10 +28,13 @@ fact about the user's situation; ask before treating it as confirmed.
 Before cloud creation or template acquisition, establish whether the user is updating an existing
 project or creating a new one. Reuse any explicit target, project name or access choice already made in
 the conversation. A request to create content or publish it does not by itself authorize a new cloud
-project. Use `onimi_list_projects` and resolve an explicit project UUID, a UUID in a dashboard/editor
-URL, an exact audience-URL slug, or one unique exact project name. Never choose a fuzzy or ambiguous
-name for a write. If intent is incomplete, ask one concise combined question for only the missing facts:
-existing project name/ID/URL for an update, or confirmed project name and `public`, `unlisted`, or
+project. Locate the existing work by its full `projectName` first, following
+[publish.md](publish.md#connect-and-select-the-target). Use `projectId` when no name is available;
+an explicit work link can pin the same-name target but must not override a name conflict. Resolve
+through an appropriate read before the first mutation, then keep the resolved ID for writes and
+retries. Never choose a fuzzy or ambiguous name, or create a replacement after failed lookup. If
+intent is incomplete, ask one concise combined question for only the missing facts: the existing
+work name or link for an update, or confirmed project name and `public`, `unlisted`, or
 `private` access for a new project. Explain that public projects are listed in Explore and open to
 anyone, unlisted projects are open to anyone with the link, and private projects require owner/grant
 access. An explicit controlled-sharing choice establishes private access, so explain it without asking
@@ -122,8 +125,9 @@ When connected to Onimi, use the five-layer catalog as the current authority:
    Never send the user's prompt, draft or materials. Call `onimi_choose_resources` with exact explicit
    choices after local matching; `taskTags` may contain only tags returned by the public catalog. Reuse
    exact existing template/theme identities when revising an artifact unless the user changes them.
-   To consider a premium template, pass the already chosen owned `projectId` so the service can check
-   effective access; without a project, only basic templates are eligible. If an exact explicit or
+   To consider a premium template, identify the already chosen owned work by `projectName` first
+   (or `projectId` when no name is available) so the service can check effective access; without a
+   project, only basic templates are eligible. If an exact explicit or
    inherited template/theme is unavailable, explain that choice and ask before changing it.
 3. Save the public list response in a task cache outside this installed Skill and verify every selected
    identity before using it:
@@ -153,9 +157,12 @@ node /absolute/path/to/onimi-pages/scripts/scenario.mjs travel-handbook zh-CN
 Use `en` for English and identify this as an offline bundled scenario fallback. The offline bundle does
 not claim current example, pattern, template or theme authority.
 
-For Slides, use `onimi_list_templates` with locale and the selected `projectId` only to confirm effective
-account availability after public catalog selection. Acquire exactly once with `onimi_get_template`, a
-fresh UUID and `{projectId, templateKey, locale, version, themeKey, themeVersion}`. Both theme fields are required
+For Slides, first resolve the selected existing work by its full `projectName`, or `projectId` when no
+name is available, following [publish.md](publish.md#connect-and-select-the-target). Use
+`onimi_list_templates` with locale and that target only to confirm effective account availability after
+public catalog selection. Bind the returned `projectId` and acquire exactly once with
+`onimi_get_template`, a fresh UUID and
+`{projectId, templateKey, locale, version, themeKey, themeVersion}`. Both theme fields are required
 when a theme is selected. This requires `template:read` and current entitlement. Reuse the UUID and the
 same exact body only after an uncertain response. Verify returned canonical `source` against
 `integrity`; keep template and theme identities, derivation, licenses and acquisition receipt with the

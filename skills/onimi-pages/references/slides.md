@@ -66,12 +66,14 @@ factually ready to present.
 
 ## Discover and acquire the exact template
 
-1. Select the existing Onimi project first. A valid explicit project UUID is a hard precondition for
-   `onimi_list_templates` and `onimi_get_template`. If the user has not identified an existing project,
-   ask once which project to use; do not probe with `null`, an empty value, a nil UUID or a placeholder,
-   and do not create a project. Preserve the selected template/theme and local editable outline while
-   waiting for that answer. Call `onimi_list_templates` with the resolved `projectId` and the locale.
-   Public listing returns metadata, compatibility and effective availability, never source.
+1. Select the existing Onimi work first. Pass the user's full `projectName` to
+   `onimi_list_templates` with the locale; use `projectId` when no name is available. Follow
+   [publish.md](publish.md#connect-and-select-the-target) for exact name matching, account checks,
+   duplicate candidates and name/link conflicts. If no work was identified, ask once for its name or
+   link. If lookup is missing or ambiguous, stop acquisition and preserve the selected template/theme
+   and local editable outline. Do not guess, probe with a placeholder or create a project. Public
+   listing returns metadata, compatibility and effective availability, never source. Bind the
+   returned `projectId` and use that ID alone for acquisition, chunks and uncertain retries.
 2. Select one exact advertised `templateKey` and `version`. Discover the visual theme separately in
    the resource catalog and select its exact `themeKey` and `themeVersion`. Do not guess a key,
    substitute `latest`, or combine multiple template sources.
