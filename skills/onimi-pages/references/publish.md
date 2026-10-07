@@ -114,16 +114,63 @@ one existing project, or create one new project. A generic request to publish do
 new project. Reuse an explicit earlier choice of target, project name or access; do not ask the user to
 confirm the same choice again.
 
-Call `onimi_list_projects` first. Resolve an explicit project UUID exactly; resolve a dashboard/editor
-URL by its embedded UUID; resolve an audience URL by its exact project slug; or resolve an explicit
-project name only when exactly one returned project has that name. Never use a partial/fuzzy name match
-for a write. If the reference has no match or multiple name matches, show the short candidates and ask
-which one. If the user has not chosen update versus create, ask once, combining only the missing facts:
-for an update, the existing project name/ID/URL; for a new project, its name and intended access
-(`public` means listed in Explore and open to anyone, `unlisted` means open to anyone with the link, or
+Inspect the actual discovered input schema before using a project selector. When that tool
+advertises `projectName`, use it first when the user supplied a work name.
+The service trims leading/trailing whitespace and matches the full, case-sensitive name only among
+non-deleted works owned by the current author in the connected account. Name lookup requires
+`project:read` in addition to the tool's own scopes. Never use a partial/fuzzy name match for a write.
+When no name is available, the existing `projectId` input remains valid and keeps its previous scope
+requirements. The older `project` ID/slug input also remains supported where advertised. Resolve a
+dashboard/editor URL by its embedded UUID and an audience URL by its exact project slug; do not
+invent a name from a slug or filename.
+
+If the discovered tool schema does not advertise `projectName`, do not send an unsupported field
+or try a write to guess its behavior. Use the existing `onimi_list_projects` read in the connected
+account, completing any pagination advertised by that read tool without inventing unsupported cursor
+inputs, and match the full, case-sensitive
+name after trimming leading/trailing whitespace. Consider only non-deleted works owned by the current
+author, using the list tool's documented ownership scope or explicit ownership in the response. If
+neither establishes ownership, stop and explain the missing read capability.
+Zero matches require the user to check the name/account; multiple matches require a recognizable
+choice using names, links, type and update time. Never pick the first match or create a replacement.
+Only a unique verified match, or the user's explicit choice among the verified candidates, may bind
+its internal ID. If a name and link/ID were supplied together, they must identify the same matched
+work; a conflict stops the operation. Pass only a selector advertised by the older tool, such as
+`projectId` or its supported `project` ID/slug input, without asking the user to find a UUID. If the
+list is incomplete, unavailable or unauthorized, preserve the local artifact and pause cloud work.
+This compatibility path does not relax account, author, scope or name/link checks.
+
+If the schema advertises `projectName` and the user supplied both a name and a work link or ID,
+send `projectName` plus the link's exact
+`projectId` to verify the same work. The ID must be one of that name's owned matches; it may pin a
+specific same-name work but never overrides a conflicting or missing name. A
+`PROJECT_TARGET_MISMATCH` stops the operation: ask the user to check the name and link, including
+whether the work was renamed. Do not discard the name and retry the ID as a hidden fallback.
+
+A name-not-found result is authoritative even when an ID was also supplied: ask the user to check
+the name or connected account, or use `onimi_list_projects` to help them find the work. Do not
+silently create a replacement. For duplicate names, use the returned candidate name, slug, artifact
+kind, update time and dashboard link to show a short recognizable choice. Never pick the first
+candidate. Reuse an explicit project link if it identifies one candidate; otherwise ask which work
+the user intends. After they choose, omit the name and use the selected ID. User-facing questions
+should ask for the work name or link, rather than requiring a UUID.
+
+Before the first mutation, resolve through an appropriate read: `onimi_list_projects` for project
+metadata, `onimi_get_draft` when authorized to edit private source, or `onimi_list_templates` for
+chosen-template access. Do not use a private draft read as a connection test. Targeted project reads
+return the resolved `projectId`; project listings expose each item's stable `id`. Once the target is
+established, bind that ID to the task and use `projectId` alone where advertised, or the older tool's
+supported ID selector, for writes, exact revisions, chunk
+requests and uncertain retries. Preserve the original mutation UUID and request body. Do not repeat name lookup during a
+mutation retry: a rename or a newly created namesake must not retarget the original operation.
+Internal upload helpers, journal references and server receipts still use stable IDs.
+
+If the user has not chosen update versus create, ask once, combining only the missing facts: for an
+update, the existing work name or link; for a new project, its name and intended access (`public`
+means listed in Explore and open to anyone, `unlisted` means open to anyone with the link, or
 `private` means owner/grant access). Do not ask for new-project name or visibility on an update. An
-explicit controlled-sharing choice establishes `private`; explain that consequence without asking a
-redundant visibility question.
+explicit controlled-sharing choice establishes `private`; explain that consequence without asking
+a redundant visibility question.
 
 Call `onimi_create_project` only after the user explicitly chooses a new project and its name and access
 are known. A title, filename or page heading is not a confirmed project name unless the user made it the
